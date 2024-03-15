@@ -10,20 +10,21 @@ impl Analyzer {
     pub fn new() -> Analyzer {
         Analyzer {
             regex_list: vec![
-                NEWMON_RESP_REGEX.clone(),
+                NEWMON_RESP_POSITIVE_REGEX.clone(),
+                NEWMON_RESP_NEGATIVE_REGEX.clone(),
                 MON_REGEX.clone(),
                 RESPOND_REGEX.clone(),
             ],
         }
     }
 
-    pub fn get_groups(&self, received_message: &str) -> HashMap<(usize, usize), String> {
+    pub fn get_groups(&self, received_message: &str) -> HashMap<String, String> {
         let mut groups = HashMap::new();
-        for (i, regex) in self.regex_list.iter().enumerate() {
+        for regex in &self.regex_list {
             if let Some(captures) = regex.captures(received_message) {
-                for (j, capture) in captures.iter().enumerate() {
-                    if let Some(match_) = capture {
-                        groups.insert((i, j), match_.as_str().to_string());
+                for name in regex.capture_names().flatten() {
+                    if let Some(match_) = captures.name(&name) {
+                        groups.insert(name.to_string(), match_.as_str().to_string());
                     }
                 }
             }
@@ -48,13 +49,14 @@ lazy_static! {
     static ref PASSWORD_REGEX: Regex = Regex::new(&format!("{}{{3,50}}", CHARACTER_PASS_REGEX.as_str())).unwrap();
     static ref AUTHENTICATION_REGEX: Regex = Regex::new(&format!("{}{{3,50}}", CHARACTER_PASS_REGEX.as_str())).unwrap();
     static ref PASSWORD_AUTH_REGEX: Regex = Regex::new(&format!(r"(?P<Password>{})((?P<Auth>{}))?", PASSWORD_REGEX.as_str(), AUTHENTICATION_REGEX.as_str())).unwrap();
-    static ref HOST_REGEX: Regex = Regex::new(&format!(r"(?P<Host>({}|\.|_|-)){{3,50}}", LETTER_DIGIT_REGEX.as_str())).unwrap();
-    static ref PATH_REGEX: Regex = Regex::new(&format!(r"/(?P<Oid>({}|[.\-_])){{0,100}}", LETTER_DIGIT_REGEX.as_str())).unwrap();
-    static ref URL_REGEX: Regex = Regex::new(&format!(r"(?P<Protocol>{})://((?P<Username>{})((:{}))??@)?{}((?P<Port>{}))?{}", PROTOCOL_REGEX.as_str(), USERNAME_REGEX.as_str(), PASSWORD_AUTH_REGEX.as_str(), HOST_REGEX.as_str(), PORT_REGEX.as_str(), PATH_REGEX.as_str())).unwrap();
+    static ref HOST_REGEX: Regex = Regex::new(&format!(r"({}|\.|_|-){{3,50}}", LETTER_DIGIT_REGEX.as_str())).unwrap();
+    static ref PATH_REGEX: Regex = Regex::new(&format!(r"/({}|[.\-_]){{0,100}}", LETTER_DIGIT_REGEX.as_str())).unwrap();
+    static ref URL_REGEX: Regex = Regex::new(&format!(r"{}://({}((:{}))??@)?{}({})?{}", PROTOCOL_REGEX.as_str(), USERNAME_REGEX.as_str(), PASSWORD_AUTH_REGEX.as_str(), HOST_REGEX.as_str(), PORT_REGEX.as_str(), PATH_REGEX.as_str())).unwrap();
     static ref STATE_REGEX: Regex = Regex::new(r"OK|ALARM|DOWN|UNKNOWN").unwrap();
     static ref MESSAGE_REGEX: Regex = Regex::new(&format!("{}{{1,200}}", CHARACTER_REGEX.as_str())).unwrap();
 
-    pub static ref NEWMON_RESP_REGEX: Regex = Regex::new(&format!(r"(\+OK{}{})?|(-ERR{}{})?({})?", SP_REGEX.as_str(), MESSAGE_REGEX.as_str(), SP_REGEX.as_str(), MESSAGE_REGEX.as_str(), CRLF_REGEX.as_str())).unwrap();
-    pub static ref MON_REGEX: Regex = Regex::new(&format!(r"(?P<Type>MON)(({}{}){{0,100}})({})?", SP_REGEX.as_str(), ID_REGEX.as_str(), CRLF_REGEX.as_str())).unwrap();
-    pub static ref RESPOND_REGEX: Regex = Regex::new(&format!("(?P<Type>RESPOND){}{}{}{}{}{}({})?", SP_REGEX.as_str(), ID_REGEX.as_str(), SP_REGEX.as_str(), URL_REGEX.as_str(), SP_REGEX.as_str(), STATE_REGEX.as_str(), CRLF_REGEX.as_str())).unwrap();
+    pub static ref NEWMON_RESP_POSITIVE_REGEX: Regex = Regex::new(&format!(r"(?P<StatePositive>\+OK){}(?P<MessageForPositive>{})({})?", SP_REGEX.as_str(), MESSAGE_REGEX.as_str(), CRLF_REGEX.as_str())).unwrap();
+    pub static ref NEWMON_RESP_NEGATIVE_REGEX: Regex = Regex::new(&format!(r"(?P<StateNegative>\-ERR){}(?P<MessageForNegative>{})({})?", SP_REGEX.as_str(), MESSAGE_REGEX.as_str(), CRLF_REGEX.as_str())).unwrap();
+    pub static ref MON_REGEX: Regex = Regex::new(&format!(r"(?P<Type>MON)((?P<Id>({}{}){{0,100}}))({})?", SP_REGEX.as_str(), ID_REGEX.as_str(), CRLF_REGEX.as_str())).unwrap();
+    pub static ref RESPOND_REGEX: Regex = Regex::new(&format!("(?P<Type>RESPOND){}(?P<Id>{}){}(?P<Url>{}){}(?P<State>{})({})?", SP_REGEX.as_str(), ID_REGEX.as_str(), SP_REGEX.as_str(), URL_REGEX.as_str(), SP_REGEX.as_str(), STATE_REGEX.as_str(), CRLF_REGEX.as_str())).unwrap();
 }
