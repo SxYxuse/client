@@ -22,7 +22,7 @@ fn main() {
         println!("3. Check status...:  REQUEST <id>");
         println!("4. Quit...........:  QUIT");
         print!("Enter command: ");
-        io::stdout().flush().unwrap(); // flush to ensure 'Enter command' is printed before blocking for input
+        io::stdout().flush().unwrap();
         match io::stdin().read_line(&mut input) {
             Ok(_) => {
                 let parts: Vec<&str> = input.trim().split_whitespace().collect();
