@@ -9,10 +9,7 @@ use std::io::{self, Write};
 use crate::client::unicast_handler::UnicastHandler;
 
 fn main() {
-    let handler = UnicastHandler::new("localhost", 20000, 12345);
-    println!("Client ready to connect to {}", handler.get_address());
-    handler.start_listening();
-    println!("Server listening on {}", handler.get_address());
+    let handler = UnicastHandler::new("192.168.147.79", 60001);
 
     loop {
         let mut input = String::new();
