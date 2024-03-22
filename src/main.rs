@@ -34,8 +34,8 @@ fn main() {
                             continue;
                         }
                         let message = handler.build_newmon_message(parts[1]);
-                        let reponse = handler.send_message(&message).unwrap();
-                        print!("Response from monitor: {}", reponse)
+                        let response = handler.send_message(&message).unwrap();
+                        print!("Response from monitor: {}", response)
                     }
                     "LISTMON" => {
                         let message = handler.build_listmon_message();

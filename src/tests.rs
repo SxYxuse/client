@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
     use crate::analyzer::Analyzer;
-    
+
     #[test]
     fn test_get_groups_for_respond_message() {
         let analyzer = Analyzer::new();
