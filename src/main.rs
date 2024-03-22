@@ -9,7 +9,7 @@ use std::io::{self, Write};
 use crate::client::unicast_handler::UnicastHandler;
 
 fn main() {
-    let handler = UnicastHandler::new("192.168.147.79", 60001);
+    let handler = UnicastHandler::new("192.168.133.5", 60001);
 
     loop {
         let mut input = String::new();
@@ -38,7 +38,8 @@ fn main() {
                     }
                     "LISTMON" => {
                         let message = handler.build_listmon_message();
-                        handler.send_message(&message).unwrap();
+                        let response = handler.send_message(&message).unwrap();
+                        println!("Response from monitor: {}", response);
                     }
                     "REQUEST" => {
                         if parts.len() < 2 {
@@ -46,7 +47,8 @@ fn main() {
                             continue;
                         }
                         let message = handler.build_request_message(parts[1]);
-                        handler.send_message(&message).unwrap();
+                        let reponse = handler.send_message(&message).unwrap();
+                        println!("Response from monitor: {}", reponse)
                     }
                     "QUIT" => {
                         println!("Exiting program.");

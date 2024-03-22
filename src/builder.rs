@@ -25,7 +25,7 @@ impl Builder {
 pub struct Builder;
 
 impl Builder {
-    const NEWMON: &'static str = "NEWMON <augmented_url)\r\n";
+    const NEWMON: &'static str = "NEWMON <augmented_url>\r\n";
     const LISTMON: &'static str = "LISTMON\r\n";
     const REQUEST: &'static str = "REQUEST <id>\r\n";
 
